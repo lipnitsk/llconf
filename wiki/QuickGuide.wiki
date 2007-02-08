@@ -13,7 +13,7 @@ A more complex example is /etc/network/interfaces.
 
 == Parsers ==
 
-So far, llconf implements these parsers: file, shell, table, ifupdown, pair, ppp, ini, route, pslave, ipsec, funcexpr, cyconf, syslogng, iptables, mgetty, snmpd, conserver. So far, this covers all configuration files used on the OnBoard, and more.
+So far, llconf implements these parsers: file, shell, table, ifupdown, pair, ppp, ini, route, pslave, ipsec, funcexpr, cyconf, syslogng, iptables, mgetty, snmpd, conserver.
 
 == llconf utility ==
 
@@ -41,7 +41,7 @@ Examples:
 
  # llconf pair -i /etc/resolv.conf -s dump
  (root)
-        search = 'cyclades.com'
+        search = 'foobar.com'
         nameserver = '192.168.1.1'
         nameserver = '192.168.1.2'
 }}}
@@ -161,7 +161,6 @@ Debian users will prefer to make a package first:
 }}}
 
 and then install the packages.
-
 
 
 
