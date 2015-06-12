@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(llconf, 0.4.5, <oku@debian.org>)
-AC_CONFIG_SRCDIR([src/ifupdown.c])
+AC_INIT(llconf, 0.4.6, <oku@debian.org>)
+AC_CONFIG_SRCDIR([src/entry.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE()
 AC_PROG_LIBTOOL()
@@ -23,5 +23,5 @@ AC_C_CONST
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset strdup strerror])
-AC_CONFIG_FILES([Makefile llconf.pc src/Makefile examples/Makefile doc/Makefile debian/Makefile])
+AC_CONFIG_FILES([Makefile llconf.pc src/Makefile src/parsers/Makefile examples/Makefile doc/Makefile debian/Makefile])
 AC_OUTPUT 

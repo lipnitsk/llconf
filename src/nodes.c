@@ -1,22 +1,22 @@
 /* -*- linux-c -*- */
 /*
-  This file is part of llconf2
+    This file is part of llconf2
 
-  Copyright (C) 2004/2005  Oliver Kurth <oku@debian.org>
-  
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-  
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Copyright (C) 2004-2007  Oliver Kurth <oku@debian.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <stdio.h>
@@ -286,6 +286,42 @@ int compare_cnftree(const struct cnfnode *cn_root1, const struct cnfnode *cn_roo
 		if((ret = compare_cnfnode(cn_root1, cn_root2)) != 0)
 			return ret;
 	}else{
+		if((cn_root1 == NULL) && (cn_root2 == NULL))
+			return 0;
+		else{
+			if(cn_root1 == NULL)
+				return -3;
+			else
+				return 3;
+		}
+	}
+	for(cn1 = cn_root1->first_child, cn2 = cn_root2->first_child; cn1 || cn2; cn1 = cn1->next, cn2 = cn2->next){
+		if((ret = compare_cnftree(cn1, cn2)) != 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+/** compare two trees.
+ * Recursively compare two trees if they are the same, by comparing the names, values and subtrees,
+ * except the names and values of the two rot nodes.
+ * The return value is pretty much useless, except for the fact that it indicates
+ * if the trees match or not, because this function returns as soon as it finds
+ * some difference.
+ * @param cn_root1 the first tree
+ * @param cn_root2 the second tree
+ * @return 0 if names and values and children match
+ * @return -3/3 if cn_root1 has less/more descendants than cn_root2
+ * @return the result of compare_cnfnode() if names or values do not match
+ * @sa compare_cnfnode
+ */
+int compare_cnftree_children(const struct cnfnode *cn_root1, const struct cnfnode *cn_root2)
+{
+	const struct cnfnode *cn1, *cn2;
+	int ret;
+
+	if(!(cn_root1 && cn_root2)){
 		if((cn_root1 == NULL) && (cn_root2 == NULL))
 			return 0;
 		else{

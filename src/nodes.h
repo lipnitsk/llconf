@@ -2,41 +2,46 @@
 /*
     This file is part of llconf2
 
-    Copyright (C) 2004,2005  Oliver Kurth <oku@debian.org>
+    Copyright (C) 2004-2007  Oliver Kurth <oku@debian.org>
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
+    This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef __LLCONF_NODES_H_INCLUDED
+#define __LLCONF_NODES_H_INCLUDED
+
+/** A node in a parsed configuration tree. */
 struct cnfnode{
-	struct cnfnode *next;
-	char *name;
-	char *value;
-	struct cnfnode *first_child;
-	struct cnfnode *parent;
-	void *user_data;
+	struct cnfnode *next; /**< The next sibling of this node. */
+	char *name; /**< The name of this node; may be NULL. */
+	char *value; /**< The value at this leaf node; usually NULL for non-leaf nodes, but not necessarily. */
+	struct cnfnode *first_child; /**< The first child underneath this node. */
+	struct cnfnode *parent; /**< The parent node of this node. */
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cnfnode *create_cnfnode(const char *name);
 
 struct cnfnode *clone_cnfnode(const struct cnfnode *cn);
 struct cnfnode *clone_cnftree(const struct cnfnode *cn_root);
 
-inline
 const char *cnfnode_getval(const struct cnfnode *cn);
 
-inline
 const char *cnfnode_getname(const struct cnfnode *cn);
 
 void cnfnode_setval(struct cnfnode *cn, const char *value);
@@ -61,7 +66,14 @@ void unlink_node(struct cnfnode *cn);
    and returns 1st node with matching name */
 struct cnfnode *find_node(struct cnfnode *cn_list, const char *name);
 
-int compare_cnftree(const struct cnfnode *cn_root1, const struct cnfnode *cn_root2);
 int compare_cnfnode(const struct cnfnode *cn1, const struct cnfnode *cn2);
+int compare_cnftree(const struct cnfnode *cn_root1, const struct cnfnode *cn_root2);
+int compare_cnftree_children(const struct cnfnode *cn_root1, const struct cnfnode *cn_root2);
 
 void dump_nodes(struct cnfnode *cn_root, int level);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __LLCONF_NODES_H_INCLUDED

@@ -1,28 +1,29 @@
 /* -*- linux-c -*- */
 /*
-  This file is part of llconf2
-  
-  Copyright (C) 2004  Oliver Kurth <oku@debian.org>
-  
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
-  
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    This file is part of llconf2
+
+    Copyright (C) 2004-2007  Oliver Kurth <oku@debian.org>
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <dlfcn.h>
 
 #include "strutils.h"
 #include "nodes.h"
@@ -56,14 +57,14 @@ void unregister_all(void)
 }
 
 /** Destroy a module previously created using clone_cnfmodule().
- * free the ressources of a module. The module MUST have been created by clone_module.
- * @param pointer to the module to be destroyed
+ * free the resources of a module. The module MUST have been created by clone_module.
+ * @param cm pointer to the module to be destroyed
  */
-
 void destroy_cnfmodule(struct cnfmodule *cm)
 {
 	if(cm->default_file) free(cm->default_file);
 	if(cm->name) free(cm->name);
+	if(cm->opt_root) destroy_cnftree(cm->opt_root);
 	free(cm);
 }
 
@@ -248,4 +249,38 @@ int cnfmodule_unparse_file(struct cnfmodule *cm, const char *fname,
 		}
 	}
 	return ret;
+}
+
+/** Load a shared library module
+ * Load a shared library module and register a new parser by calling a
+ * register function. The register function needs to have a register function of the prototype
+ *  void llconf_register_foo(struct cnfnode *opt_root), with 'foo' replaced by the name.
+ * @param name name of the parser
+ * @param path path to the shared library object
+ * @param opt_root pointer to the root of the options tree. Can be NULL.
+ * @return 0 on success
+ */
+
+int cnfmodule_register_plugin(const char *name, const char *path, struct cnfnode *opt_root)
+{
+	void *dlh;
+
+	dlh = dlopen(path, RTLD_LAZY);
+	if(dlh){
+		char *dlerr;
+		char fname[256];
+		struct cnfmodule *(*fe_reg_func)(struct cnfnode *);
+
+		snprintf(fname, sizeof(fname), "llconf_register_%s", name);
+		dlerror();    /* Clear any existing error */
+		fe_reg_func = dlsym(dlh, fname);
+		if((dlerr = dlerror()) == NULL)
+			fe_reg_func(opt_root);
+		else{
+			return -2;
+		}
+	}else{
+		return -1;
+	}
+	return 0;
 }

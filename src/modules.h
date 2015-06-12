@@ -1,33 +1,35 @@
+/* -*- linux-c -*- */
 /*
     This file is part of llconf2
 
-    Copyright (C) 2004,2005  Oliver Kurth <oku@debian.org>
+    Copyright (C) 2004-2007  Oliver Kurth <oku@debian.org>
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
+    This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-extern struct cnf_module *cnf_modules;
+extern struct cnfmodule *cnfmodules;
 
+/** Information for registering a parser module. */
 struct cnfmodule
 {
-  struct cnfmodule *next;
-  char *name;
-  char *default_file;
-  struct cnfnode *(*parser)(struct cnfmodule *cm, FILE *fptr);
-  int (*unparser)(struct cnfmodule *cm, FILE *fptr, struct cnfnode *cn_root);
-  struct cnfnode *opt_root;
+  struct cnfmodule *next; /**< The next module in the registration list. */
+  char *name; /**< The text name of this parser module. */
+  char *default_file; /**< The file that this module operates on, if none is specified when the parser is instantiated. */
+  struct cnfnode *(*parser)(struct cnfmodule *cm, FILE *fptr); /**< The function to use to create an in-memory tree from the given stream. */
+  int (*unparser)(struct cnfmodule *cm, FILE *fptr, struct cnfnode *cn_root); /**< The function to use to write the in-memory tree to the given stream. */
+  struct cnfnode *opt_root; /**< The default set of options for this parser. */
 };
 
 void register_cnfmodule(struct cnfmodule *cm, struct cnfnode *opt_root);
@@ -56,3 +58,5 @@ int cnfmodule_unparse(struct cnfmodule *cm, FILE* fout,
 
 int cnfmodule_unparse_file(struct cnfmodule *cm, const char *fname,
 			   struct cnfnode *cn_root);
+
+int cnfmodule_register_plugin(const char *name, const char *path, struct cnfnode *opt_root);
