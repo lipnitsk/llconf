@@ -316,11 +316,15 @@ int cnf_del_branch(struct cnfnode *cn_root, const char *path, int del_empty)
 			/* must be done after unlink_(), so it does not find this one in the search
 			   below, and before destroy_(), because we still need to access the structure. */
 			struct cnfnode *cn;
+			struct cnfnode *cn_next;
 
-			for(cn = cn_top->parent; cn->parent && cn != cn_root; cn = cn->parent){
+			for(cn = cn_top->parent; cn->parent && cn != cn_root; cn = cn_next){
 				if(cn->first_child == NULL){
 					unlink_node(cn);
+					cn_next = cn->parent;
 					destroy_cnftree(cn);
+				} else {
+					cn_next = cn->parent;
 				}
 			}
 		}
